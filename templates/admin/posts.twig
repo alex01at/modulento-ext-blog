@@ -1,0 +1,55 @@
+{% extends '@admin/layout.twig' %}
+{% import '@admin/_icons.twig' as icons %}
+
+{# Every post. Receives "posts" (id, title, locales, state, published_at,
+   category, author, path - the public address while visible), "page" and
+   "pages". #}
+{% block title %}{{ trans('blog.admin.title') }} – {{ site_name }}{% endblock %}
+
+{% block admin %}
+{% include '@admin/_page_header.twig' with {heading: trans('blog.admin.title')} only %}
+
+<section class="card-box">
+    <div class="card-head">
+        <p>{{ trans('blog.admin.intro') }}</p>
+        <div class="button-row">
+            <a class="btn btn-outline" href="{{ url('/admin/blog/categories') }}">{{ trans('blog.admin.categories.title') }}</a>
+            <a class="btn" href="{{ url('/admin/blog/new') }}">{{ icons.icon('plus') }}<span>{{ trans('blog.admin.new') }}</span></a>
+        </div>
+    </div>
+
+    {% if posts is empty %}
+        <p class="empty">{{ trans('blog.admin.none') }}</p>
+    {% else %}
+        <div class="table-wrap">
+            <table>
+                <thead>
+                <tr>
+                    <th scope="col">{{ trans('blog.admin.field.title') }}</th>
+                    <th scope="col">{{ trans('blog.admin.field.status') }}</th>
+                    <th scope="col">{{ trans('blog.admin.date') }}</th>
+                    <th scope="col">{{ trans('blog.admin.languages') }}</th>
+                    <th scope="col">{{ trans('blog.admin.field.category') }}</th>
+                    <th scope="col">{{ trans('blog.admin.field.author') }}</th>
+                    <th scope="col"><span class="visually-hidden">{{ trans('blog.admin.view') }}</span></th>
+                </tr>
+                </thead>
+                <tbody>
+                {% for post in posts %}
+                    <tr>
+                        <th scope="row"><a href="{{ url('/admin/blog/' ~ post.id) }}">{{ post.title }}</a></th>
+                        <td><span class="badge badge-{{ post.state == 'scheduled' ? 'pending' : post.state }}">{{ trans('blog.admin.status.' ~ post.state) }}</span></td>
+                        <td>{{ post.published_at ? post.published_at|date('Y-m-d H:i') }}</td>
+                        <td>{{ post.locales|join(', ') }}</td>
+                        <td>{{ post.category }}</td>
+                        <td>{{ post.author }}</td>
+                        <td>{% if post.path %}<a href="{{ url(post.path) }}" target="_blank" rel="noopener">{{ trans('blog.admin.view') }}</a>{% endif %}</td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% include '@admin/_pager.twig' with {path: '/admin/blog', page: page, pages: pages} only %}
+    {% endif %}
+</section>
+{% endblock %}

@@ -1,0 +1,42 @@
+{% extends '@admin/layout.twig' %}
+{% import '@admin/_icons.twig' as icons %}
+
+{# The categories of the blog. Receives "categories" (id, name, locales). #}
+{% block title %}{{ trans('blog.admin.categories.title') }} – {{ site_name }}{% endblock %}
+
+{% block admin %}
+{% include '@admin/_page_header.twig' with {
+    heading: trans('blog.admin.categories.title'),
+    crumbs: [{label: trans('blog.admin.title'), path: '/admin/blog'}]
+} only %}
+
+<section class="card-box">
+    <div class="card-head">
+        <p>{{ trans('blog.admin.categories.intro') }}</p>
+        <a class="btn" href="{{ url('/admin/blog/categories/new') }}">{{ icons.icon('plus') }}<span>{{ trans('blog.admin.categories.new') }}</span></a>
+    </div>
+
+    {% if categories is empty %}
+        <p class="empty">{{ trans('blog.admin.categories.none') }}</p>
+    {% else %}
+        <div class="table-wrap">
+            <table>
+                <thead>
+                <tr>
+                    <th scope="col">{{ trans('blog.admin.categories.name') }}</th>
+                    <th scope="col">{{ trans('blog.admin.languages') }}</th>
+                </tr>
+                </thead>
+                <tbody>
+                {% for category in categories %}
+                    <tr>
+                        <th scope="row"><a href="{{ url('/admin/blog/categories/' ~ category.id) }}">{{ category.name }}</a></th>
+                        <td>{{ category.locales|join(', ') }}</td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    {% endif %}
+</section>
+{% endblock %}

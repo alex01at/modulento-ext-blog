@@ -1,0 +1,38 @@
+{% extends 'layout/base.twig' %}
+
+{# One post. Receives "post" (title, summary, body, locale, published_at,
+   published_iso, image, category, author) and "json_ld", the post as
+   structured data, encoded so that it cannot leave its script block. #}
+{% block title %}{{ post.title }} – {{ site_name }}{% endblock %}
+
+{% block head %}
+    {% include '@blog/_head.twig' %}
+    {% if post.summary %}
+        <meta name="description" content="{{ post.summary }}">
+    {% endif %}
+    <script type="application/ld+json">{{ json_ld|raw }}</script>
+{% endblock %}
+
+{% block content %}
+{# post.locale differs from the page's language when this language has no text of its own. #}
+<article class="blog blog-post">
+    <header>
+        {% include '@blog/_meta.twig' with {post: post} only %}
+        <h1 lang="{{ post.locale }}">{{ post.title }}</h1>
+        {% if post.summary %}
+            <p class="blog-lead" lang="{{ post.locale }}">{{ post.summary }}</p>
+        {% endif %}
+    </header>
+
+    {% if post.image %}
+        <img class="blog-cover" src="{{ post.image.large }}" width="{{ post.image.width }}" height="{{ post.image.height }}" alt="{{ post.image.alt }}">
+    {% endif %}
+
+    {# Cleaned to a fixed set of formatting elements when it was saved. #}
+    <div class="blog-body" lang="{{ post.locale }}">
+        {{ post.body|raw }}
+    </div>
+
+    <p class="blog-back"><a href="{{ url('/blog') }}">{{ trans('blog.back') }}</a></p>
+</article>
+{% endblock %}

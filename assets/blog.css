@@ -1,0 +1,44 @@
+/* The blog's own few rules. Colours come from the variables every site
+   theme defines (--line, --surface, --text, --muted, --accent), so the
+   pages follow the theme and its light and dark scheme. */
+
+.blog-head { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: .5rem 1.5rem; margin-bottom: 1rem; }
+.blog-head h1, .blog-head h2 { margin: 0; }
+
+.blog-categories { display: flex; flex-wrap: wrap; gap: .5rem; margin: 0 0 1.5rem; }
+.blog-categories a { padding: .3rem .8rem; border: 1px solid var(--line); border-radius: 2rem; color: var(--text); font-size: .9rem; text-decoration: none; }
+.blog-categories a:hover { border-color: var(--accent); }
+.blog-categories [aria-current] { border-color: var(--accent); color: var(--accent); font-weight: 700; }
+
+.blog-cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(17rem, 1fr)); gap: 1.5rem; margin: 0; padding: 0; list-style: none; }
+/* The home page shows three posts: three columns whatever the width of the
+   theme's container, one below the other on a narrow screen. */
+.blog-home .blog-cards { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+@media (max-width: 52rem) { .blog-home .blog-cards { grid-template-columns: minmax(0, 1fr); } }
+.blog-card { display: flex; flex-direction: column; overflow: hidden; border: 1px solid var(--line); border-radius: .6rem; background: var(--surface); }
+.blog-card-image { display: block; }
+.blog-card-image img { display: block; width: 100%; height: auto; aspect-ratio: 16 / 9; object-fit: cover; }
+.blog-card-text { display: grid; gap: .5rem; padding: 1rem 1.15rem 1.25rem; overflow-wrap: anywhere; }
+.blog-card h2, .blog-card h3 { margin: 0; font-size: 1.2rem; line-height: 1.3; }
+.blog-card h2 a, .blog-card h3 a { color: var(--text); text-decoration: none; }
+.blog-card h2 a:hover, .blog-card h3 a:hover { color: var(--accent); }
+.blog-card-summary { margin: 0; color: var(--muted); font-size: .95rem; }
+
+/* The dot belongs to the entry before it, so a line never starts with one. */
+.blog-meta { display: flex; flex-wrap: wrap; gap: .15rem .45rem; margin: 0; color: var(--muted); font-size: .85rem; }
+.blog-meta > :not(:last-child)::after { content: "·"; display: inline-block; margin-left: .45rem; color: var(--muted); }
+.blog-meta a { text-decoration: none; }
+.blog-meta a:hover { text-decoration: underline; }
+
+/* With the element name, so that a theme's general width for articles
+   does not stretch the lines. */
+article.blog-post { max-width: 46rem; margin: 0 auto; }
+.blog-post h1 { margin: .4rem 0 .75rem; line-height: 1.2; }
+.blog-lead { margin: 0 0 1.5rem; color: var(--muted); font-size: 1.15rem; }
+.blog-cover { display: block; width: 100%; height: auto; margin: 0 0 1.5rem; border-radius: .6rem; }
+.blog-body { line-height: 1.7; }
+.blog-body h2, .blog-body h3, .blog-body h4 { margin: 2rem 0 .5rem; line-height: 1.3; }
+.blog-body blockquote { margin: 1.5rem 0; padding: .25rem 0 .25rem 1rem; border-left: .25rem solid var(--line); color: var(--muted); }
+.blog-body pre { padding: .8rem 1rem; overflow-x: auto; border: 1px solid var(--line); border-radius: .4rem; background: var(--surface); }
+.blog-body table { margin: 1.5rem 0; }
+.blog-back { margin-top: 2.5rem; padding-top: 1rem; border-top: 1px solid var(--line); }

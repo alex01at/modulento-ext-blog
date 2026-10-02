@@ -1,0 +1,23 @@
+{# A grid of posts. Receives "posts" and "level", the heading level of the
+   titles (2 on the list, 3 below a section heading). post.locale differs
+   from the page's language where the post has no text in it. #}
+<ul class="blog-cards">
+    {% for post in posts %}
+        <li class="blog-card">
+            {% if post.image %}
+                <a class="blog-card-image" href="{{ url(post.path) }}" tabindex="-1" aria-hidden="true"><img src="{{ post.image.thumb }}" alt="" loading="lazy"></a>
+            {% endif %}
+            <div class="blog-card-text">
+                {% include '@blog/_meta.twig' with {post: post} only %}
+                {% if level == 3 %}
+                    <h3 lang="{{ post.locale }}"><a href="{{ url(post.path) }}">{{ post.title }}</a></h3>
+                {% else %}
+                    <h2 lang="{{ post.locale }}"><a href="{{ url(post.path) }}">{{ post.title }}</a></h2>
+                {% endif %}
+                {% if post.summary %}
+                    <p class="blog-card-summary" lang="{{ post.locale }}">{{ post.summary }}</p>
+                {% endif %}
+            </div>
+        </li>
+    {% endfor %}
+</ul>

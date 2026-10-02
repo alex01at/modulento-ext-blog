@@ -1,0 +1,120 @@
+{% extends '@admin/layout.twig' %}
+
+{# The form of a post. Receives "post" (id or null, status, published_at as
+   the date field wants it, category_id, translations by language, image),
+   "errors", "locales", "categories", "statuses", "images_available" and
+   "max_megabytes". #}
+{% block title %}{{ trans('blog.admin.title') }} – {{ site_name }}{% endblock %}
+
+{% block admin %}
+{% include '@admin/_page_header.twig' with {
+    heading: post.id ? trans('blog.admin.edit') : trans('blog.admin.new'),
+    crumbs: [{label: trans('blog.admin.title'), path: '/admin/blog'}]
+} only %}
+
+{% for error in errors %}
+    <p class="flash flash-error" role="alert">{{ error }}</p>
+{% endfor %}
+
+<form method="post" action="{{ url(post.id ? '/admin/blog/' ~ post.id : '/admin/blog/new') }}" enctype="multipart/form-data">
+    {{ csrf_field() }}
+
+    {% for code in locales %}
+        {% set text = post.translations[code] ?? {} %}
+        <fieldset class="card-box">
+            <legend>{{ locale_name(code) }}</legend>
+            {% if not loop.first %}
+                <p><small>{{ trans('blog.admin.optional_language') }}</small></p>
+            {% endif %}
+
+            <div class="field-grid">
+                <div class="field">
+                    <label for="title_{{ code }}">{{ trans('blog.admin.field.title') }}</label>
+                    <input id="title_{{ code }}" name="text[{{ code }}][title]" value="{{ text.title ?? '' }}" maxlength="200" lang="{{ code }}">
+                </div>
+                <div class="field">
+                    <label for="slug_{{ code }}">{{ trans('blog.admin.field.slug') }}</label>
+                    <input id="slug_{{ code }}" name="text[{{ code }}][slug]" value="{{ text.slug ?? '' }}" maxlength="200">
+                    <small>{{ trans('blog.admin.field.slug_hint') }}</small>
+                </div>
+                <div class="field field-wide">
+                    <label for="summary_{{ code }}">{{ trans('blog.admin.field.summary') }}</label>
+                    <textarea id="summary_{{ code }}" name="text[{{ code }}][summary]" rows="3" maxlength="500" lang="{{ code }}">{{ text.summary ?? '' }}</textarea>
+                    <small>{{ trans('blog.admin.field.summary_hint') }}</small>
+                </div>
+                <div class="field field-wide">
+                    <label for="body_{{ code }}">{{ trans('blog.admin.field.body') }}</label>
+                    <textarea id="body_{{ code }}" name="text[{{ code }}][body]" rows="14" lang="{{ code }}">{{ text.body ?? '' }}</textarea>
+                    <small>{{ trans('blog.admin.field.body_hint') }}</small>
+                </div>
+                <div class="field field-wide">
+                    <label for="image_alt_{{ code }}">{{ trans('blog.admin.field.image_alt') }}</label>
+                    <input id="image_alt_{{ code }}" name="text[{{ code }}][image_alt]" value="{{ text.image_alt ?? '' }}" maxlength="200" lang="{{ code }}">
+                    <small>{{ trans('blog.admin.field.image_alt_hint') }}</small>
+                </div>
+            </div>
+        </fieldset>
+    {% endfor %}
+
+    <fieldset class="card-box">
+        <legend>{{ trans('blog.admin.publishing') }}</legend>
+
+        <div class="field-grid">
+            <div class="field">
+                <label for="status">{{ trans('blog.admin.field.status') }}</label>
+                <select id="status" name="status">
+                    {% for status in statuses %}
+                        <option value="{{ status }}" {{ post.status == status ? 'selected' }}>{{ trans('blog.admin.status.' ~ status) }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="field">
+                <label for="published_at">{{ trans('blog.admin.field.published_at') }}</label>
+                <input id="published_at" name="published_at" type="datetime-local" value="{{ post.published_at }}">
+                <small>{{ trans('blog.admin.field.published_at_hint') }}</small>
+            </div>
+            <div class="field">
+                <label for="category_id">{{ trans('blog.admin.field.category') }}</label>
+                <select id="category_id" name="category_id">
+                    <option value="">{{ trans('blog.admin.field.category_none') }}</option>
+                    {% for category in categories %}
+                        <option value="{{ category.id }}" {{ post.category_id == category.id ? 'selected' }}>{{ category.name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="field field-wide">
+                <label for="image">{{ trans('blog.admin.field.image') }}</label>
+                {% if images_available %}
+                    {% if post.image %}
+                        <p><img src="{{ post.image.thumb }}" width="240" alt="{{ trans('blog.admin.image_current') }}"></p>
+                    {% endif %}
+                    <input id="image" name="image" type="file" accept="image/jpeg,image/png,image/webp">
+                    <small>{{ trans('blog.admin.field.image_hint', {megabytes: max_megabytes}) }}</small>
+                {% else %}
+                    <small>{{ trans('blog.admin.image_unavailable') }}</small>
+                {% endif %}
+            </div>
+        </div>
+
+        <div class="button-row">
+            <button type="submit">{{ trans('blog.admin.save') }}</button>
+        </div>
+    </fieldset>
+</form>
+
+{% if post.id %}
+    <section class="card-box">
+        {% if post.image %}
+            <form method="post" action="{{ url('/admin/blog/' ~ post.id ~ '/image/delete') }}" class="danger-form">
+                {{ csrf_field() }}
+                <button type="submit" class="danger">{{ trans('blog.admin.image_remove') }}</button>
+            </form>
+        {% endif %}
+        <form method="post" action="{{ url('/admin/blog/' ~ post.id ~ '/delete') }}" class="danger-form">
+            {{ csrf_field() }}
+            <p><small>{{ trans('blog.admin.delete_hint') }}</small></p>
+            <button type="submit" class="danger">{{ trans('blog.admin.delete') }}</button>
+        </form>
+    </section>
+{% endif %}
+{% endblock %}

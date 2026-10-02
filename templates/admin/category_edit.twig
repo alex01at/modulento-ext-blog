@@ -1,0 +1,55 @@
+{% extends '@admin/layout.twig' %}
+
+{# The form of a category. Receives "category" (id, translations by
+   language) or null, "errors" and "locales". #}
+{% block title %}{{ trans('blog.admin.categories.title') }} – {{ site_name }}{% endblock %}
+
+{% block admin %}
+{% include '@admin/_page_header.twig' with {
+    heading: category and category.id ? trans('blog.admin.categories.edit') : trans('blog.admin.categories.new'),
+    crumbs: [
+        {label: trans('blog.admin.title'), path: '/admin/blog'},
+        {label: trans('blog.admin.categories.title'), path: '/admin/blog/categories'}
+    ]
+} only %}
+
+{% for error in errors %}
+    <p class="flash flash-error" role="alert">{{ error }}</p>
+{% endfor %}
+
+<form method="post" action="{{ url(category and category.id ? '/admin/blog/categories/' ~ category.id : '/admin/blog/categories/new') }}">
+    {{ csrf_field() }}
+
+    <div class="columns">
+        {% for code in locales %}
+            {% set text = category ? (category.translations[code] ?? {}) : {} %}
+            <fieldset class="card-box">
+                <legend>{{ locale_name(code) }}</legend>
+                <div class="field">
+                    <label for="name_{{ code }}">{{ trans('blog.admin.categories.name') }}</label>
+                    <input id="name_{{ code }}" name="text[{{ code }}][name]" value="{{ text.name ?? '' }}" maxlength="150" lang="{{ code }}">
+                </div>
+                <div class="field">
+                    <label for="slug_{{ code }}">{{ trans('blog.admin.field.slug') }}</label>
+                    <input id="slug_{{ code }}" name="text[{{ code }}][slug]" value="{{ text.slug ?? '' }}" maxlength="160">
+                    <small>{{ trans('blog.admin.categories.slug_hint') }}</small>
+                </div>
+            </fieldset>
+        {% endfor %}
+    </div>
+
+    <div class="card-box">
+        <button type="submit">{{ trans('blog.admin.save') }}</button>
+    </div>
+</form>
+
+{% if category and category.id %}
+    <section class="card-box">
+        <form method="post" action="{{ url('/admin/blog/categories/' ~ category.id ~ '/delete') }}" class="danger-form">
+            {{ csrf_field() }}
+            <p><small>{{ trans('blog.admin.categories.delete_hint') }}</small></p>
+            <button type="submit" class="danger">{{ trans('blog.admin.categories.delete') }}</button>
+        </form>
+    </section>
+{% endif %}
+{% endblock %}

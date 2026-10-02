@@ -1,0 +1,47 @@
+{% extends 'layout/base.twig' %}
+
+{# The list of posts, also of one category. Receives "posts" (see
+   _cards.twig), "category" (name, path, locale) or null, "categories",
+   "page" and "pages". #}
+{% block title %}{{ category ? category.name ~ ' – ' ~ trans('blog.title') : trans('blog.title') }}{% if page > 1 %} – {{ trans('blog.pager.position', {page: page, pages: pages}) }}{% endif %} – {{ site_name }}{% endblock %}
+
+{% block head %}
+    {% include '@blog/_head.twig' %}
+{% endblock %}
+
+{% block content %}
+{% set here = category ? category.path : '/blog' %}
+<div class="blog">
+    <header class="blog-head">
+        {% if category %}
+            <h1 lang="{{ category.locale }}">{{ category.name }}</h1>
+        {% else %}
+            <h1>{{ trans('blog.title') }}</h1>
+        {% endif %}
+        <a href="{{ url('/blog/feed') }}" type="application/atom+xml">{{ trans('blog.feed.link') }}</a>
+    </header>
+
+    {% if categories %}
+        <nav class="blog-categories" aria-label="{{ trans('blog.categories') }}">
+            <a href="{{ url('/blog') }}" {{ category is null ? 'aria-current="page"' }}>{{ trans('blog.all') }}</a>
+            {% for entry in categories %}
+                <a href="{{ url(entry.path) }}" lang="{{ entry.locale }}" {{ category and category.id == entry.id ? 'aria-current="page"' }}>{{ entry.name }}</a>
+            {% endfor %}
+        </nav>
+    {% endif %}
+
+    {% if posts is empty %}
+        <p>{{ trans(category ? 'blog.none_in_category' : 'blog.none') }}</p>
+    {% else %}
+        {% include '@blog/_cards.twig' with {posts: posts, level: 2} only %}
+
+        {% if pages > 1 %}
+            <nav class="pager" aria-label="{{ trans('blog.pager.label') }}">
+                {% if page > 1 %}<a href="{{ url(here) }}{{ page > 2 ? '?page=' ~ (page - 1) }}" rel="prev">{{ trans('blog.pager.previous') }}</a>{% endif %}
+                <span>{{ trans('blog.pager.position', {page: page, pages: pages}) }}</span>
+                {% if page < pages %}<a href="{{ url(here) }}?page={{ page + 1 }}" rel="next">{{ trans('blog.pager.next') }}</a>{% endif %}
+            </nav>
+        {% endif %}
+    {% endif %}
+</div>
+{% endblock %}

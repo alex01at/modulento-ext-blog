@@ -1,0 +1,16 @@
+{# The newest posts on the home page, see Registrar::homeSection(). The
+   core includes this without variables, so it asks for its posts itself:
+   Home::Latest is the handle this extension offers templates for that.
+   The stylesheet is linked here because an included template cannot add
+   to the layout's <head>. Shows nothing while there is no post. #}
+{% set posts = constant('Modulento\\Blog\\Home::Latest').posts(3) %}
+{% if posts %}
+    <section class="blog blog-home">
+        <link rel="stylesheet" href="{{ ext_asset('blog', 'blog.css') }}">
+        <div class="blog-head">
+            <h2>{{ trans('blog.home.title') }}</h2>
+            <a href="{{ url('/blog') }}">{{ trans('blog.home.all') }}</a>
+        </div>
+        {% include '@blog/_cards.twig' with {posts: posts, level: 3} only %}
+    </section>
+{% endif %}

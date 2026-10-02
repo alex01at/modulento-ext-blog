@@ -1,0 +1,11 @@
+{# Date, category and author of a post in one line. Receives "post". The
+   author is missing where the account has no display name or is gone. #}
+<p class="blog-meta">
+    <time datetime="{{ post.published_iso }}">{{ post.published_at|date(trans('blog.date_format')) }}</time>
+    {% if post.category %}
+        <a href="{{ url(post.category.path) }}" lang="{{ post.category.locale }}">{{ post.category.name }}</a>
+    {% endif %}
+    {% if post.author %}
+        <span>{{ trans('blog.by', {author: post.author}) }}</span>
+    {% endif %}
+</p>

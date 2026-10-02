@@ -1,0 +1,4 @@
+{# What every page of the blog adds to <head>: its stylesheet and the feed
+   of the visitor's language. #}
+<link rel="stylesheet" href="{{ ext_asset('blog', 'blog.css') }}">
+<link rel="alternate" type="application/atom+xml" title="{{ trans('blog.feed.title', {site: site_name}) }}" href="{{ url('/blog/feed', null, true) }}">

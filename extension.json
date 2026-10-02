@@ -1,0 +1,8 @@
+{
+    "id": "blog",
+    "name": "Blog",
+    "version": "0.1.0",
+    "requires": "0.15.0",
+    "api": 1,
+    "namespace": "Modulento\\Blog"
+}
