@@ -24,7 +24,7 @@ final class Posts
 
     // Second path segments below /blog that are routes of their own; a
     // post with such an address would never be reached.
-    public const RESERVED_SLUGS = ['category', 'feed', 'media', 'home-section'];
+    public const RESERVED_SLUGS = ['category', 'feed'];
 
     public function __construct(private PDO $db, private Locales $locales)
     {

@@ -29,7 +29,7 @@ disappears from a language's list because of the language it was written in.
 The text of a post is HTML, reduced to the core's fixed set of formatting
 elements when it is saved. Cover pictures (JPEG, PNG or WebP, 8 MB at most)
 are decoded and written anew in two sizes, stored under random names in
-`var/uploads/blog/` outside the web root and served at `/blog/media/...`.
+`var/uploads/blog/` outside the web root and served at `/media/blog/...`.
 
 Not part of this version, on purpose: **comments** and **tags**. There is
 also no preview of drafts and no editor beyond the text field with HTML that
@@ -73,17 +73,10 @@ template by bringing a file of the same name in
 from the variables of the site theme (`--line`, `--surface`, `--text`,
 `--muted`, `--accent`), so it follows the theme and its dark scheme.
 
-The section on the home page (`home.twig`) is included by the core without
-variables. It fetches its posts with
-
-```twig
-{% set posts = constant('Modulento\\Blog\\Home::Latest').posts(3) %}
-```
-
-which a theme can use in any template of its own while the extension is
-enabled. Each post has `title`, `path`, `summary`, `body`, `locale`,
-`published_at`, `image` (`large`, `thumb`, `width`, `height`, `alt`),
-`category` (`name`, `path`) and `author`.
+The section on the home page (`home.twig`) gets `posts`, the newest three.
+Each post has `title`, `path`, `summary`, `body`, `locale`, `published_at`,
+`image` (`large`, `thumb`, `width`, `height`, `alt`), `category` (`name`,
+`path`) and `author`.
 
 ## Development
 

@@ -19,6 +19,7 @@ use Modulento\Core\Support\Router;
 final class Extension implements ExtensionContract
 {
     public const PERMISSION = 'blog.posts.manage';
+    private const HOME_POSTS = 3;
 
     public function register(Registrar $registrar): void
     {
@@ -29,9 +30,10 @@ final class Extension implements ExtensionContract
             // The fixed addresses come before /blog/{slug}: the first match
             // wins, and Posts::RESERVED_SLUGS keeps posts off them.
             $router->get('/blog/feed', [BlogController::class, 'feed'], Router::PUBLIC);
-            $router->get('/blog/media/{file}', [BlogController::class, 'media'], Router::PUBLIC);
+            // Below /media/ the core starts no session: pictures load side by
+            // side and may be kept by any cache.
+            $router->get('/media/blog/{file}', [BlogController::class, 'media'], Router::PUBLIC);
             $router->get('/blog/category/{slug}', [BlogController::class, 'category'], Router::PUBLIC);
-            HomeFeed::bind($router);
             $router->get('/blog/{slug}', [BlogController::class, 'show'], Router::PUBLIC);
 
             $router->get('/admin/blog', [AdminController::class, 'index'], self::PERMISSION);
@@ -51,7 +53,12 @@ final class Extension implements ExtensionContract
 
         $registrar->adminMenu('blog.admin.menu', '/admin/blog', self::PERMISSION);
         $registrar->navigation('blog.nav', '/blog');
-        $registrar->homeSection('@blog/home.twig');
+        $registrar->homeSection('@blog/home.twig', function (App $app): array {
+            $locale = $app->translator->locale();
+            $list = (new Posts($app->db, $app->locales))->listVisible($locale, 1, self::HOME_POSTS);
+
+            return ['posts' => (new PostView($app))->cards($list['rows'], $locale)];
+        });
 
         // What an account wrote is part of its data. Nothing to do when an
         // account is deleted: the foreign key takes the author off its

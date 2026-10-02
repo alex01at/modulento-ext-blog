@@ -144,7 +144,7 @@ final class PostImages
             return null;
         }
 
-        $base = '/blog/media/' . $post['image_name'];
+        $base = '/media/blog/' . $post['image_name'];
 
         return [
             'large' => $base . '.' . $post['image_extension'],

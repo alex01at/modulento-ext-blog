@@ -118,30 +118,9 @@ final class BlogController extends Controller
             return;
         }
 
-        // This address is not among those the core answers without a
-        // session, so one was started and announced "do not cache". Other
-        // pictures must not wait for its lock, and a session that was only
-        // just created for this request is of no use to anyone: without
-        // its cookie the answer is the same for everybody and may be kept
-        // by any cache. A cookie that carries something (a login resumed
-        // by "stay logged in") is sent, and then the answer is private.
-        $public = true;
-        if (session_status() === PHP_SESSION_ACTIVE) {
-            $carriesCookie = array_filter(headers_list(), fn (string $header) => stripos($header, 'Set-Cookie:') === 0) !== [];
-            if ($carriesCookie && ($_SESSION ?? []) === []) {
-                session_destroy();
-                header_remove('Set-Cookie');
-            } else {
-                session_write_close();
-                $public = !$carriesCookie;
-            }
-        }
-        header_remove('Pragma');
-        header_remove('Expires');
-
         header('Content-Type: ' . self::TYPES[pathinfo($file, PATHINFO_EXTENSION)]);
         // The name is random and never reused, so the file never changes.
-        header('Cache-Control: ' . ($public ? 'public' : 'private') . ', max-age=31536000, immutable');
+        header('Cache-Control: public, max-age=31536000, immutable');
         header("Content-Security-Policy: default-src 'none'");
         header('Content-Length: ' . filesize($file));
         readfile($file);

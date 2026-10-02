@@ -10,8 +10,6 @@ declare(strict_types=1);
 
 use Modulento\Blog\Categories;
 use Modulento\Blog\Feed;
-use Modulento\Blog\Home;
-use Modulento\Blog\HomeFeed;
 use Modulento\Blog\PostImages;
 use Modulento\Blog\Posts;
 use Modulento\Blog\PostView;
@@ -105,7 +103,7 @@ $app->translator->load($core . '/core/lang', 'core');
 $app->extensions->loadEnabled($app);
 check('extension: the core loads it', isset($app->extensions->loaded()['blog']) && $app->extensions->loaded()['blog']->version === json_decode((string) file_get_contents($here . '/extension.json'), true)['version']);
 check('extension: menu entry, home page section, permission and administration entry are announced', $app->navigation() === [['label_key' => 'blog.nav', 'path' => '/blog']]
-    && $app->homeSections() === ['@blog/home.twig'] && ($app->permissions()['blog.posts.manage'] ?? null) === 'blog.permission.posts_manage'
+    && array_column($app->homeSections(), 'template') === ['@blog/home.twig'] && ($app->permissions()['blog.posts.manage'] ?? null) === 'blog.permission.posts_manage'
     && $app->adminMenu() === [['label_key' => 'blog.admin.menu', 'path' => '/admin/blog', 'permission' => 'blog.posts.manage']]);
 $app->locales->save('de', ['de', 'en']);
 $app->translator->setLocale('de');
@@ -167,7 +165,7 @@ check('reserved: a title that would give such an address gets a counter instead'
 $signs = $posts->save(null, $fields('draft', null), ['de' => $text('???')]);
 check('slug: a title of signs still gets an address', $posts->find($signs['id'])['translations']['de']['slug'] === 'post');
 check('reserved: the fixed routes of the extension are all on the list', (function () use ($here): bool {
-    preg_match_all("#'/blog/([a-z-]+)[/']#", (string) file_get_contents($here . '/src/Extension.php') . file_get_contents($here . '/src/HomeFeed.php'), $found);
+    preg_match_all("#'/blog/([a-z-]+)[/']#", (string) file_get_contents($here . '/src/Extension.php'), $found);
     return $found[1] !== [] && array_diff(array_unique($found[1]), Posts::RESERVED_SLUGS) === [];
 })());
 check('post: without a title in any language nothing is saved', $posts->save(null, $fields(), ['de' => $text(''), 'en' => $text('  ')])['errors'][0]['key'] === 'blog.admin.error.no_text');
@@ -298,26 +296,20 @@ check('author deleted: they have no author any more', $posts->find($inNews['id']
     && (new PostView($app))->card($posts->findVisibleBySlug('de', 'in-aktuelles', $now), 'de')['author'] === null);
 
 // --- Home page section -----------------------------------------------------------------------
-// register() bound the router; the template's call ends in the
-// route's handler, which the router hands the App.
-$latest = Home::Latest->posts(3);
+// The closure given to Registrar::homeSection() supplies the cards.
+$home = fn (): array => array_values(array_filter($app->homeSections(), fn (array $section) => $section['template'] === '@blog/home.twig'))[0]['data']['posts'];
+$latest = $home();
 check('home: the newest three posts as cards', array_column($latest, 'title') === ['Ohne Namen', 'Ein Tipp', 'In Aktuelles'] && $latest[0]['path'] === '/blog/ohne-namen');
-check('home: the number asked for, within limits', count(Home::Latest->posts(5)) === 5 && count(Home::Latest->posts(0)) === 1 && count(Home::Latest->posts(500)) === 12);
 $app->translator->setLocale('en');
 $english = $posts->save(null, $fields(date: '2026-05-04 09:00:00', author: 2), ['de' => $text('Zweisprachig'), 'en' => $text('Bilingual')]);
-check('home: in the visitor\'s language', Home::Latest->posts(1)[0]['title'] === 'Bilingual');
+check('home: in the visitor\'s language', $home()[0]['title'] === 'Bilingual');
 $app->translator->setLocale('de');
-check('home: a draft or scheduled post never shows', (function () use ($posts, $fields, $text): bool {
+check('home: a draft or scheduled post never shows', (function () use ($posts, $fields, $text, $home): bool {
     $posts->save(null, $fields('draft', null, null, 2), ['de' => $text('Geheim')]);
     $posts->save(null, $fields('published', '2999-01-01 00:00:00', null, 2), ['de' => $text('Zukunft')]);
-    return array_intersect(array_column(Home::Latest->posts(12), 'title'), ['Geheim', 'Zukunft']) === [];
+    return array_intersect(array_column($home(), 'title'), ['Geheim', 'Zukunft']) === [];
 })());
-ob_start();
-$app->router->dispatch('GET', HomeFeed::PATH);
-$outside = (string) ob_get_clean();
-check('home: the route behind it answers a browser with "not found"', http_response_code() === 404 || str_contains($outside, '404'));
-http_response_code(200);
-$section = $app->view()->render('@blog/home.twig');
+$section = $app->view()->render('@blog/home.twig', ['posts' => $home()]);
 check('home: the template fetches its posts itself', str_contains($section, 'Zweisprachig') && str_contains($section, 'href="/blog/zweisprachig"') && substr_count($section, 'class="blog-card"') === 3);
 
 // --- HTML cleaning ---------------------------------------------------------------------------
@@ -411,7 +403,7 @@ if (!PostImages::available()) {
     check('image: written anew and scaled down', $large[0] === 1600 && $large[1] === 800 && $thumb[0] === 640 && (int) $row['image_width'] === 1600 && (int) $row['image_height'] === 800
         && in_array($large[2], [IMAGETYPE_WEBP, IMAGETYPE_JPEG], true));
     $urls = PostImages::urls($row);
-    check('image: addresses for templates', $urls['large'] === "/blog/media/{$row['image_name']}.{$extension}" && $urls['thumb'] === "/blog/media/{$row['image_name']}_thumb.{$extension}");
+    check('image: addresses for templates', $urls['large'] === "/media/blog/{$row['image_name']}.{$extension}" && $urls['thumb'] === "/media/blog/{$row['image_name']}_thumb.{$extension}");
 
     check('image: JPEG and WebP are accepted too, and a new picture replaces the old files', $images->set($xss['id'], $upload($makeImage('jpg', 300, 200))) === null
         && $images->set($xss['id'], $upload($makeImage('webp', 300, 200))) === null && count($stored()) === 2 && !in_array("{$row['image_name']}.{$extension}", $stored(), true));
@@ -481,7 +473,7 @@ check('json-ld: slashes stay escaped and the values survive', str_contains($json
     && json_decode($jsonLd, true)['headline'] === '</script><script>alert(9)</script>' && json_decode($jsonLd, true)['description'] === "\"quote\" & 'apostrophe' <b>");
 
 $app->path = '/blog/script-alert-t-script';
-$page = $app->view()->render('@blog/show.twig', ['post' => ['image' => ['large' => '/blog/media/x.webp', 'thumb' => '', 'width' => 10, 'height' => 5, 'alt' => '"><script>alert(6)</script>']] + $card, 'json_ld' => $jsonLd]);
+$page = $app->view()->render('@blog/show.twig', ['post' => ['image' => ['large' => '/media/blog/x.webp', 'thumb' => '', 'width' => 10, 'height' => 5, 'alt' => '"><script>alert(6)</script>']] + $card, 'json_ld' => $jsonLd]);
 check('templates: the post page escapes title, summary and alt text', !preg_match('/<script>alert|<img src=x/', $page) && str_contains($page, 'alt="&quot;&gt;&lt;script&gt;alert(6)&lt;/script&gt;"')
     && str_contains($page, '<meta name="description" content="&lt;img src=x onerror=alert(5)&gt;">'));
 check('templates: the cleaned text is printed as HTML', str_contains($page, '<p>Hallo <strong>Welt</strong></p>') && substr_count($page, '<script') === substr_count($page, '<script src=') + 1);
