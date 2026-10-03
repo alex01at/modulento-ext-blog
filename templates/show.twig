@@ -7,11 +7,11 @@
 
 {% block head %}
     {% include '@blog/_head.twig' %}
-    {% if post.summary %}
-        <meta name="description" content="{{ post.summary }}">
-    {% endif %}
     <script type="application/ld+json">{{ json_ld|raw }}</script>
 {% endblock %}
+
+{% block meta_description %}{{ post.summary }}{% endblock %}
+{% block meta_image %}{{ post.image.large ?? site_logo('light') }}{% endblock %}
 
 {% block content %}
 {# post.locale differs from the page's language when this language has no text of its own. #}

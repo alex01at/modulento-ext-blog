@@ -37,9 +37,10 @@ the core's pages have.
 
 ## Requirements
 
-Modulento 0.17.0 or newer (interface version 1 with `navigation()` and
-`homeSection()`). PHP's GD extension for cover pictures; without it the blog
-works without pictures.
+Modulento 0.18.0 or newer (interface version 1 with `navigation()` and
+`homeSection()`; a post's description and cover picture feed the layout's
+`meta_description` and `meta_image` blocks). PHP's GD extension for cover
+pictures; without it the blog works without pictures.
 
 ## Installing
 

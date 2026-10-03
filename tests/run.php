@@ -477,6 +477,13 @@ $page = $app->view()->render('@blog/show.twig', ['post' => ['image' => ['large' 
 check('templates: the post page escapes title, summary and alt text', !preg_match('/<script>alert|<img src=x/', $page) && str_contains($page, 'alt="&quot;&gt;&lt;script&gt;alert(6)&lt;/script&gt;"')
     && str_contains($page, '<meta name="description" content="&lt;img src=x onerror=alert(5)&gt;">'));
 check('templates: the cleaned text is printed as HTML', str_contains($page, '<p>Hallo <strong>Welt</strong></p>') && substr_count($page, '<script') === substr_count($page, '<script src=') + 1);
+// The core's layout builds the description and the image tags from the
+// post's own blocks (meta_description, meta_image) - exactly once each,
+// and og:description carries the same text.
+check('templates: the description appears once, also as og:description', substr_count($page, 'name="description"') === 1 && str_contains($page, '<meta property="og:description" content="&lt;img src=x onerror=alert(5)&gt;">'));
+check('templates: the cover picture is the post\'s own, made absolute, as og:image', str_contains($page, '<meta property="og:image" content="https://blog.example/media/blog/x.webp">'));
+$withoutImage = $app->view()->render('@blog/show.twig', ['post' => $card, 'json_ld' => $jsonLd]);
+check('templates: without a cover picture, og:image falls back to the site logo or is left out', !str_contains($withoutImage, 'property="og:image"') || str_contains($withoutImage, 'property="og:image" content="https://blog.example"'));
 
 // --- Language files ---------------------------------------------------------------------------------
 $de = require $here . '/lang/de.php';
