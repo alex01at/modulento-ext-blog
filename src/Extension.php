@@ -51,7 +51,7 @@ final class Extension implements ExtensionContract
             $router->post('/admin/blog/{id}/image/delete', [AdminController::class, 'deleteImage'], self::PERMISSION);
         });
 
-        $registrar->adminMenu('blog.admin.menu', '/admin/blog', self::PERMISSION);
+        $registrar->adminMenu('blog.admin.menu', '/admin/blog', self::PERMISSION, 'content');
         $registrar->navigation('blog.nav', '/blog');
         $registrar->homeSection('@blog/home.twig', function (App $app): array {
             $locale = $app->translator->locale();

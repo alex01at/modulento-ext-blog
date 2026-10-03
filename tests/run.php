@@ -104,7 +104,7 @@ $app->extensions->loadEnabled($app);
 check('extension: the core loads it', isset($app->extensions->loaded()['blog']) && $app->extensions->loaded()['blog']->version === json_decode((string) file_get_contents($here . '/extension.json'), true)['version']);
 check('extension: menu entry, home page section, permission and administration entry are announced', $app->navigation() === [['label_key' => 'blog.nav', 'path' => '/blog']]
     && array_column($app->homeSections(), 'template') === ['@blog/home.twig'] && ($app->permissions()['blog.posts.manage'] ?? null) === 'blog.permission.posts_manage'
-    && $app->adminMenu() === [['label_key' => 'blog.admin.menu', 'path' => '/admin/blog', 'permission' => 'blog.posts.manage']]);
+    && $app->adminMenu() === [['label_key' => 'blog.admin.menu', 'path' => '/admin/blog', 'permission' => 'blog.posts.manage', 'group' => 'content']]);
 $app->locales->save('de', ['de', 'en']);
 $app->translator->setLocale('de');
 

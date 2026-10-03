@@ -37,7 +37,7 @@ the core's pages have.
 
 ## Requirements
 
-Modulento 0.15.0 or newer (interface version 1 with `navigation()` and
+Modulento 0.17.0 or newer (interface version 1 with `navigation()` and
 `homeSection()`). PHP's GD extension for cover pictures; without it the blog
 works without pictures.
 

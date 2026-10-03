@@ -44,7 +44,7 @@
                 </div>
                 <div class="field field-wide">
                     <label for="body_{{ code }}">{{ trans('blog.admin.field.body') }}</label>
-                    <textarea id="body_{{ code }}" name="text[{{ code }}][body]" rows="14" lang="{{ code }}">{{ text.body ?? '' }}</textarea>
+                    <textarea id="body_{{ code }}" name="text[{{ code }}][body]" rows="14" lang="{{ code }}" data-editor="{{ editor() }}">{{ text.body ?? '' }}</textarea>
                     <small>{{ trans('blog.admin.field.body_hint') }}</small>
                 </div>
                 <div class="field field-wide">
