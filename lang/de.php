@@ -23,6 +23,7 @@ return [
     'blog.home.all' => 'Alle Beiträge',
 
     'blog.permission.posts_manage' => 'Blog: Beiträge und Kategorien verwalten',
+    'blog.permission.posts_manage.hint' => 'Erlaubt das Anlegen, Ändern und Löschen aller Beiträge und Kategorien des Blogs.',
 
     'blog.admin.menu' => 'Blog',
     'blog.admin.title' => 'Blog',

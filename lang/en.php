@@ -23,6 +23,7 @@ return [
     'blog.home.all' => 'All posts',
 
     'blog.permission.posts_manage' => 'Blog: manage posts and categories',
+    'blog.permission.posts_manage.hint' => 'Allows creating, changing and deleting every post and category of the blog.',
 
     'blog.admin.menu' => 'Blog',
     'blog.admin.title' => 'Blog',
