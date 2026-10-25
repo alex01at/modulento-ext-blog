@@ -1,7 +1,7 @@
 {
     "id": "blog",
     "name": "Blog",
-    "version": "0.1.4",
+    "version": "0.1.5",
     "requires": "0.18.0",
     "api": 1,
     "description": "Adds a blog: a stand-alone portal with no marketplace enabled, or the site's news section next to one.",

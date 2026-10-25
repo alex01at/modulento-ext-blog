@@ -124,4 +124,4 @@ GitHub Release.
 
 ## Licence
 
-GPL-3.0-or-later, see `LICENSE`.
+Dies ist ein kommerzielles Produkt, lizenziert je Installation unter dem Endnutzer-Lizenzvertrag in `LICENSE` - nicht GPL (der Modulento-Kern selbst bleibt GPL-3.0-or-later; diese Erweiterung ist ein eigenständiges, proprietäres Werk).
